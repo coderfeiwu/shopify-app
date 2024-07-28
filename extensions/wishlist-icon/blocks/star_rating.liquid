@@ -1,0 +1,248 @@
+<link rel="preload" as="image" href="{{ product.images.first.src | img_url:'' }}">
+{{ 'wish_list.css' | asset_url | stylesheet_tag }}
+<style>
+  .wishlist-inspire__icon button.active text{
+    color:{{ block.settings.active_color }};
+  }
+  .wishlist-inspire__icon button.active svg{
+   fill:{{ block.settings.active_color }};
+  }
+</style>
+<div class="wishlist-inspire__icon" x-data="wishlist">
+  <button type="button" @click.debounce.500ms="addWishlist()">
+    <template x-if="!loadding">
+      <div class="wishlist-inspire__content">
+        <svg
+          t="1721785998549"
+          class="wishlist-inspire_icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="5145"
+          width="28"
+          height="28"
+        >
+          <path d="M704 128c-72.533333 0-145.066667 34.133333-192 89.6-46.933333-55.466667-119.466667-89.6-192-89.6-132.266667 0-234.666667 102.4-234.666667 234.666667 0 162.133333 145.066667 294.4 362.666667 490.666666l64 55.466667 64-55.466667c217.6-200.533333 362.666667-332.8 362.666667-490.666666 0-132.266667-102.4-234.666667-234.666667-234.666667z"
+            :fill="!wishlisted ? 'gray' : '#d81e06' " p-id="5146">
+          </path>
+        </svg>
+        {% if block.settings.text != blank %}
+          <span class="text">{{ block.settings.text }}</span>
+        {% endif %}
+      </div>
+    </template>
+    <template x-if="loadding">
+      <div class="loader">1</div>
+    </template>
+  </button>
+  <div class="wishlist_box_dialog" x-ref="tip">
+  <div class="wishlist_box">
+    <span> Adding to the wish list</span>
+    <img src="">
+    <span class="wishlist_box_dialog_product_name"></span>
+    <a class="view_all" @click="viewAll()">View All</a>
+  </div>
+</div>
+  <div class="dialog-wrapper"  x-ref="dialogRef">
+    <h2>hi !{{customer.name}} Wishlisted</h2>
+    <div class="dialog-container">
+        <div class="dialog-content">
+            <svg x-ref="closeRef" t="1721987685123" class="close" viewBox="0 0 1024 1024" version="1.1"
+                xmlns="http://www.w3.org/2000/svg" p-id="4244" width="30" height="30">
+                <path
+                    d="M563.8 512l262.5-312.9c4.4-5.2 0.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9c-4.4 5.2-0.7 13.1 6.1 13.1h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
+                    p-id="4245"></path>
+            </svg>
+            <template x-for="item in all_wishlists">
+              <a class="product-item">
+                <img :src="item.img"
+                    :alt="item.title">
+                <span x-text="item.title"></span>
+            </a>
+            </template>
+        </div>
+    </div>
+</div>
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('wishlist', () => ({
+      wishlisted: false,
+      loadding: false,
+      close: true,
+      control:false,
+      all_wishlists:[],
+      timer:null,
+      baseUrl: 'https://royalty-secrets-documented-parallel.trycloudflare.com',
+      init() {
+        this.loadding = true;
+        const customerId = '{{ customer.id }}';
+        const productId = '{{ product.id }}';
+        const shop = '{{shop.permanent_domain}}';
+        this.enter(customerId, productId, shop);
+        //tip
+        this.$refs.tip.addEventListener('mouseenter',()=>{
+            clearTimeout(this.timer);
+          }
+       )
+       this.$refs.tip.addEventListener('mouseleave',()=>{
+            this.timer = setTimeout(()=>{
+              this.$refs.tip.classList.remove('open')
+              this.$refs.tip.style.top = 0 +'px';
+              this.close = false
+            },3000)
+        })
+        //dilog register event
+        this.$refs.closeRef.addEventListener('click', () => {
+              this.$refs.dialogRef.classList.remove('active')
+              this.control = false
+           })
+
+         //get all Wishlisted 
+        const formData = new FormData();
+        formData.append('customerId', '{{ customer.id }}');
+        formData.append('shop', '{{shop.permanent_domain}}');
+        fetch(`${this.baseUrl}/api/getaddedproducts`, {
+            method: 'POST',
+            body: formData,
+            redirect: 'follow',
+          }).then((respone) => respone.text()).then((res) => {
+           JSON.parse(res).data.map(item=>{
+             this.all_wishlists.push({
+              img:item.featuredImage.originalSrc,
+              title:item.title
+             })
+           })
+            console.log(this.all_wishlists)
+          }).catch((err) => {console.error(err)})
+          // watch
+          this.$watch('control', value => {
+           
+              console.log(value)
+            if(value){
+              window.addEventListener('wheel', this.disableScroll, { passive: false });
+            }else{
+              window.removeEventListener('wheel', this.disableScroll, { passive: false });
+            }
+          });
+        },
+      enter(customerId, productId, shop) {
+        fetch(`${this.baseUrl}/api/wishlist?customerId=${customerId}&productId=${productId}&shop=${shop}`)
+          .then((response) => response.json())
+          .then((data) => {
+            this.wishlisted = data.ok;
+          })
+          .finally(() => {
+            this.loadding = false;
+          });
+      },
+      disableScroll(event) {
+                event.preventDefault();
+              },
+      addWishlist() {
+        const islogin = '{{ customer.id }}'
+        if(!islogin){
+          alert('login please')
+          return
+        }
+        this.loadding = true;
+        const formData = new FormData();
+        formData.append('customerId', '{{ customer.id }}');
+        formData.append('productId', '{{ product.id }}');
+        formData.append('shop', '{{shop.permanent_domain}}');
+        const product_name = '{{ product.title }}';
+        const product_url = '{{ product.images.first.src | img_url:'' }}';
+      
+        if (!this.wishlisted) {
+          fetch(`${this.baseUrl}/api/wishlist`, {
+            method: 'POST',
+            body: formData,
+            redirect: 'follow',
+          })
+            .then((respone) => respone.text())
+            .then((res) => {
+              const product_img_dom = document.querySelector('.wishlist_box_dialog img')
+              const product_name_dom = document.querySelector('.wishlist_box_dialog .wishlist_box_dialog_product_name')
+              product_img_dom.src = product_url
+              product_name_dom.innerHTML = product_name
+              this.$refs.tip.classList.add('open')
+              const header = document.querySelector('sticky-header.header-wrapper')
+              this.$refs.tip.style.top = header.clientHeight + 2 +'px';
+                this.all_wishlists.push({
+                  img:product_url,
+                  title:product_name
+                })
+              this.timer = setTimeout(()=>{
+                this.$refs.tip.classList.remove('open')
+                this.$refs.tip.style.top = 0 +'px';
+              },3000)
+              this.wishlisted =true ;
+            })
+            .catch((error) => console.log('error', error))
+            .finally(() => {
+              this.loadding = false;
+            });
+        } else {
+          fetch(`${this.baseUrl}/api/wishlist`, {
+            method: 'DELETE',
+            body: formData,
+            redirect: 'follow',
+          })
+            .then((respone) => respone.text())
+            .then((res) => {
+              this.wishlisted = false;
+              this.all_wishlists.map((item,index)=>{
+                if( item.title === product_name){
+                  this.all_wishlists.splice(index, 1);
+                }
+              })
+            })
+            .catch((error) => console.log('error', error))
+            .finally(() => {
+              this.loadding = false;
+            });
+        }
+      },
+      viewAll(){
+        this.$refs.tip.classList.remove('open')
+        this.$refs.dialogRef.classList.add('active')
+        this.control = true
+      }
+    }));
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Button",
+  "target": "section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "product",
+      "autofill": true
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "Add to Wishlist"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "icon color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "active_color",
+      "label": "active icon color",
+      "default": "#d81e06"
+    }
+  ]
+}
+{% endschema %}

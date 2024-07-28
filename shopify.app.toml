@@ -1,0 +1,28 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "ff07d10c04a6facce1801d69bd2078b6"
+name = "my-app"
+handle = "my-app-1366"
+application_url = "https://example.com/"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+dev_store_url = "quickstart-cdf324ad.myshopify.com"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = ""
+
+[auth]
+redirect_urls = [ "https://example.com/api/auth" ]
+
+[webhooks]
+api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+
+[pos]
+embedded = false
