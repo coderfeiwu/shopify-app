@@ -54,7 +54,7 @@
       top: 50%;
       left: 50%;
       display: block;
-    
+
       width: 0.5em;
       height: 0.5em;
       border-radius: 0.25em;
@@ -249,4 +249,14 @@
     white-space: nowrap;
     color: #000;
     text-align: center;
+}
+@media(max-width:750px){
+  .dialog-wrapper .dialog-container .dialog-content{
+    width: 80%;
+    gap:20px;
+    aspect-ratio: 0.6;
+  }
+  .dialog-wrapper .dialog-container .dialog-content .product-item{
+    width: calc( 50% - 10px);
+  }
 }

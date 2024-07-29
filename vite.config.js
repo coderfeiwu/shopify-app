@@ -49,12 +49,10 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  css: {
+    postcss: './postcss.config.cjs',
+  },
   build: {
     assetsInlineLimit: 0,
-  },
-  css: {
-    postcss: {
-      plugins: [require('tailwindcss'), require('autoprefixer')],
-    },
-  },
+  }
 });

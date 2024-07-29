@@ -22,7 +22,6 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-  console.log(request, "request=====>")
   const { admin } = await authenticate.admin(request);
   const color = ["Red", "Orange", "Yellow", "Green"][
     Math.floor(Math.random() * 4)

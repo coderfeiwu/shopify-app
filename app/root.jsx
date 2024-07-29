@@ -5,12 +5,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import styles from "./tailwind.css?url";
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
+}
 
-import stylesheet from "./tailwind.css";
-
-export const links = () => [
-  { rel: "stylesheet", href: stylesheet },
-];
 export default function App() {
   return (
     <html>

@@ -36,33 +36,44 @@
     </template>
   </button>
   <div class="wishlist_box_dialog" x-ref="tip">
-  <div class="wishlist_box">
-    <span> Adding to the wish list</span>
-    <img src="">
-    <span class="wishlist_box_dialog_product_name"></span>
-    <a class="view_all" @click="viewAll()">View All</a>
-  </div>
-</div>
-  <div class="dialog-wrapper"  x-ref="dialogRef">
-    <h2>hi !{{customer.name}} Wishlisted</h2>
-    <div class="dialog-container">
-        <div class="dialog-content">
-            <svg x-ref="closeRef" t="1721987685123" class="close" viewBox="0 0 1024 1024" version="1.1"
-                xmlns="http://www.w3.org/2000/svg" p-id="4244" width="30" height="30">
-                <path
-                    d="M563.8 512l262.5-312.9c4.4-5.2 0.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9c-4.4 5.2-0.7 13.1 6.1 13.1h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
-                    p-id="4245"></path>
-            </svg>
-            <template x-for="item in all_wishlists">
-              <a class="product-item">
-                <img :src="item.img"
-                    :alt="item.title">
-                <span x-text="item.title"></span>
-            </a>
-            </template>
-        </div>
+    <div class="wishlist_box">
+      <span> Adding to the wish list</span>
+      <img src="">
+      <span class="wishlist_box_dialog_product_name"></span>
+      <a class="view_all" @click="viewAll()">View All</a>
     </div>
-</div>
+  </div>
+  <div class="dialog-wrapper" x-ref="dialogRef">
+    <h2>hi !{{ customer.name }} Wishlisted</h2>
+    <div class="dialog-container">
+      <div class="dialog-content">
+        <svg
+          x-ref="closeRef"
+          t="1721987685123"
+          class="close"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="4244"
+          width="30"
+          height="30"
+        >
+          <path
+              d="M563.8 512l262.5-312.9c4.4-5.2 0.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9c-4.4 5.2-0.7 13.1 6.1 13.1h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"
+              p-id="4245"></path>
+        </svg>
+        <template x-for="item in all_wishlists">
+          <a class="product-item">
+            <img
+              :src="item.img"
+              :alt="item.title"
+            >
+            <span x-text="item.title"></span>
+          </a>
+        </template>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -75,7 +86,7 @@
       control:false,
       all_wishlists:[],
       timer:null,
-      baseUrl: 'https://royalty-secrets-documented-parallel.trycloudflare.com',
+      baseUrl: 'https://permitted-barrel-livecam-falling.trycloudflare.com',
       init() {
         this.loadding = true;
         const customerId = '{{ customer.id }}';
@@ -100,7 +111,7 @@
               this.control = false
            })
 
-         //get all Wishlisted 
+         //get all Wishlisted
         const formData = new FormData();
         formData.append('customerId', '{{ customer.id }}');
         formData.append('shop', '{{shop.permanent_domain}}');
@@ -115,12 +126,10 @@
               title:item.title
              })
            })
-            console.log(this.all_wishlists)
+
           }).catch((err) => {console.error(err)})
           // watch
           this.$watch('control', value => {
-           
-              console.log(value)
             if(value){
               window.addEventListener('wheel', this.disableScroll, { passive: false });
             }else{
@@ -154,7 +163,7 @@
         formData.append('shop', '{{shop.permanent_domain}}');
         const product_name = '{{ product.title }}';
         const product_url = '{{ product.images.first.src | img_url:'' }}';
-      
+
         if (!this.wishlisted) {
           fetch(`${this.baseUrl}/api/wishlist`, {
             method: 'POST',

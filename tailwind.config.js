@@ -1,9 +1,10 @@
-module.exports = {
+export default {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
+    "./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}",
+    "./app/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
     extend: {},
   },
   plugins: [],
-}
+} ;
