@@ -2,7 +2,6 @@ import { json } from "@remix-run/node";
 import db from '../db.server'
 import { cors } from 'remix-utils/cors'
 import { unauthenticated } from '../shopify.server'
-
 export async function action({ request }) {
     const method = request.method
     let data = await request.formData()
