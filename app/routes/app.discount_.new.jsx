@@ -5,11 +5,13 @@ import {
   AppProvider,
   TextField,
   Checkbox,
+  FormLayout,
+  Select,
 } from "@shopify/polaris";
+import DateRangePicker from "../component/DateRangePciker";
 import { authenticate } from "../shopify.server";
 import { useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
-
 // Loader function to get data from the database
 export async function loader({ request }) {
   const { session } = await authenticate.admin(request);
@@ -22,7 +24,7 @@ export default function NewDiscount() {
   const handleChange = () => setActive(!active);
   const shop = useLoaderData();
   const currentProductId = useRef(null);
-  const [currentProduct, setCurrentProduct] = useState(null);
+  const [currentProducts, setCurrentProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [addindex, setAddIndex] = useState(0);
   const [choosed, setChoosed] = useState(new Array(10).fill(false));
@@ -36,7 +38,7 @@ export default function NewDiscount() {
       });
       tempArr[index] = !tempArr[index];
       currentProductId.current = id;
-      console.log(currentProductId.current);
+
       setChoosed(tempArr);
     },
     [choosed],
@@ -56,18 +58,27 @@ export default function NewDiscount() {
           price: item.node.priceRange?.maxVariantPrice?.amount ?? "00.00",
           currencyCode: item.node.priceRange?.maxVariantPrice.currencyCode,
         };
-        setCurrentProduct(product);
+        setChoosed(new Array(10).fill(false));
+        setCurrentProducts([...currentProducts, product]);
         setAddIndex(addindex + 1);
       }
     });
     setActive(false);
   };
+  const [formData, setFormData] = useState({
+    discount_title: "",
+    discount_type: "persent",
+    discount_pirce: "",
+    start: "",
+    end: "",
+    usageLimit: 0,
+  });
   // Fetch products from the API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `https://est-nervous-pda-hard.trycloudflare.com/api/getproductbypage?shop=${shop.name}`,
+          `https://satisfied-conventions-theatre-justin.trycloudflare.com/api/getproductbypage?shop=${shop.name}`,
         );
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
@@ -81,9 +92,62 @@ export default function NewDiscount() {
     fetchProducts();
   }, [shop.name]);
 
+  const handleSelectChange = useCallback(
+    (value) => setFormData(...formData, { discount_type: value }),
+    [],
+  );
+  const options = [
+    { label: "Persent discount", value: "persent" },
+    { label: "Amount discount", value: "amount" },
+  ];
   return (
     <AppProvider>
       <div style={{ margin: "20px" }}>
+        <div className="w-full py-[30px]">
+          <FormLayout>
+            <TextField
+              type="text"
+              label="Dicount title"
+              value={formData.discount_title}
+              onChange={(value) => {
+                setFormData({ ...formData, discount_title: value });
+              }}
+              autoComplete="off"
+            />
+            <FormLayout.Group>
+              <Select
+                label="Date range"
+                options={options}
+                onChange={handleSelectChange}
+                value={formData.discount_type}
+              />
+              <TextField
+                type="text"
+                label="Discount price"
+                onChange={(value) => {
+                  setFormData({ ...formData, discount_pirce: value });
+                }}
+                value={formData.discount_pirce}
+                autoComplete="off"
+              />
+            </FormLayout.Group>
+            <FormLayout.Group>
+              <div className="flex items-center">
+                <span className="mr-[20px]">choose date:</span>
+                <DateRangePicker setupDate={setFormData} formdata={formData} />
+              </div>
+              <TextField
+                type="number"
+                label="Discount count"
+                onChange={(value) => {
+                  setFormData({ ...formData, usageLimit: value });
+                }}
+                value={formData.usageLimit}
+                autoComplete="off"
+              />
+            </FormLayout.Group>
+          </FormLayout>
+        </div>
         <div className="flex w-full justify-end">
           <Button onClick={handleChange}>add product</Button>
         </div>
@@ -137,47 +201,72 @@ export default function NewDiscount() {
           </Modal.Section>
         </Modal>
       </div>
-      <div className="w-full p-[20px] flex items-center gap-8 ">
-        <div className="w-[300px] h-[300px] flex justify-center items-center relative">
-          {!currentProduct ? (
-            <div className="w-full h-full flex justify-center items-center bg-blue-200">
-              <span className="text-md">haven't choose product</span>
+      <div className="w-full p-[20px] flex  items-stretch gap-8 ">
+        <div className="w-full  rounded-md flex gap-[20px]  flex-wrap items-center overflow-hidden relative">
+          {!currentProducts.length ? (
+            <div className="w-full h-[400px] flex justify-center items-center bg-gray-200">
+              <span className="text-xl">haven't choose product</span>
             </div>
           ) : (
-            <div className="flex flex-col justify-center items-center">
-              <svg
-                t="1722506322003"
-                className="w-[20px] h-[20px] absolute top-[10px] right-[10px] cursor-pointer"
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                p-id="4248"
-                width="20"
-                height="20"
-              >
-                <path
-                  d="M885.314 835.089l-329.395-329.396 329.395-329.396c12.128-12.128 12.128-31.792 0-43.919-12.127-12.128-31.792-12.128-43.919 0l-329.396 329.396-329.396-329.396c-12.128-12.128-31.792-12.128-43.919 0s-12.128 31.792 0 43.919l329.395 329.396-329.395 329.396c-12.128 12.128-12.128 31.793 0 43.919 12.128 12.128 31.792 12.128 43.919 0l329.396-329.396 329.396 329.396c12.128 12.128 31.793 12.128 43.919 0 12.128-12.127 12.128-31.792 0-43.919z"
-                  fill=""
-                  p-id="4249"
-                ></path>
-              </svg>
-              <img
-                className="w-[200px] h-[200px] object-cover rounded-md"
-                width={200}
-                height={200}
-                alt=""
-                src={currentProduct.img}
-              ></img>
-              <span className="mt-2 w-full text-center text-lg">
-                {currentProduct.title}
-              </span>
-              <span className="mt-2 w-full text-lg text-center text-red-600">
-                {currentProduct.price}
-                {currentProduct.currencyCode}
-              </span>
-            </div>
+            <>
+              {currentProducts.map((item, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col h-full justify-between relative w-[240px] gap-2 flex-shrink-0  items-center"
+                  >
+                    <svg
+                      t="1722506322003"
+                      className="w-[20px] h-[20px] absolute top-[10px] right-[32px] cursor-pointer"
+                      viewBox="0 0 1024 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="4248"
+                      width="20"
+                      height="20"
+                    >
+                      <path
+                        d="M885.314 835.089l-329.395-329.396 329.395-329.396c12.128-12.128 12.128-31.792 0-43.919-12.127-12.128-31.792-12.128-43.919 0l-329.396 329.396-329.396-329.396c-12.128-12.128-31.792-12.128-43.919 0s-12.128 31.792 0 43.919l329.395 329.396-329.395 329.396c-12.128 12.128-12.128 31.793 0 43.919 12.128 12.128 31.792 12.128 43.919 0l329.396-329.396 329.396 329.396c12.128 12.128 31.793 12.128 43.919 0 12.128-12.127 12.128-31.792 0-43.919z"
+                        fill=""
+                        p-id="4249"
+                      ></path>
+                    </svg>
+                    <img
+                      className="w-[200px] h-[200px] object-cover rounded-md"
+                      width={200}
+                      height={200}
+                      alt=""
+                      src={item.img}
+                    ></img>
+                    <span className="mt-2 w-full text-center text-lg">
+                      {item.title}
+                    </span>
+                    <span className="mt-2 w-full text-lg text-center text-red-600">
+                      {item.price}
+                      {item.currencyCode}
+                    </span>
+                    <Button>change</Button>
+                  </div>
+                );
+              })}
+            </>
           )}
         </div>
+      </div>
+      <div className="w-full pb-[40px] flex justify-center">
+        <Button
+          disabled={
+            (currentProducts.length == 0 && !formData.title) ||
+            !formData.discount_pirce ||
+            !formData.start ||
+            !formData.end
+          }
+          onClick={() => {
+            console.log(formData);
+          }}
+        >
+          create a discount
+        </Button>
       </div>
     </AppProvider>
   );

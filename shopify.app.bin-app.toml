@@ -3,7 +3,7 @@
 client_id = "4926fc7a7107b5126b26eaab1f8f97be"
 name = "bin-app"
 handle = "bin-app-1"
-application_url = "https://est-nervous-pda-hard.trycloudflare.com"
+application_url = "https://satisfied-conventions-theatre-justin.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_discounts,read_orders,read_price_rules,read_products,unauthentica
 
 [auth]
 redirect_urls = [
-  "https://est-nervous-pda-hard.trycloudflare.com/auth/callback",
-  "https://est-nervous-pda-hard.trycloudflare.com/auth/shopify/callback",
-  "https://est-nervous-pda-hard.trycloudflare.com/api/auth/callback"
+  "https://satisfied-conventions-theatre-justin.trycloudflare.com/auth/callback",
+  "https://satisfied-conventions-theatre-justin.trycloudflare.com/auth/shopify/callback",
+  "https://satisfied-conventions-theatre-justin.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
